@@ -260,7 +260,13 @@ var data = {
             weight: "2",
             incompatible: [],
             items: ["mace"]
-        }
+        },
+        aquaman: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: [],
+            items: ["helmet"]
+        },
     },
     items: [
         'helmet',
