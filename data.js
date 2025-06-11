@@ -293,9 +293,423 @@ var data = {
         },
         bomber: {
             levelMax: "3",
-            weight: "1",
+            weight: "2",
             incompatible: ["withered_arrows", "flare", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
             items: ["bow", "crossbow"]
+        },
+        bunny_hop: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["boots"]
+        },
+        cold_steel: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["chestplate", "elytra"]
+        },
+        confusing_arrows: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        confusion: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        cure: {
+            levelMax: "5",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        cutter: {
+            levelMax: "5",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        darkness_arrows: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        darkness_cloak: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["chestplate", "elytra"]
+        },
+        decapitator: {
+            levelMax: "4",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        double_catch: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["fishing_rod"]
+        },
+        double_strike: {
+            levelMax: "4",
+            weight: "1",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        dragonfire_arrows: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        electrified_arrows: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        elemental_protection: {
+            levelMax: "5",
+            weight: "10",
+            incompatible: [],
+            items: ["helmet", "chestplate", "leggings", "boots"]
+        },
+        ender_bow: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: ["withered_arrows", "flare", "bomber", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "electrified_arrows", "power", "flame", "ghast"],
+            items: ["bow", "crossbow"]
+        },
+        exhaust: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        exp_hunter: {
+            levelMax: "5",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        explosive_arrows: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        fire_shield: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["helmet", "chestplate", "leggings", "boots"]
+        },
+        flame_walker: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["frost_walker"],
+            items: ["boots"]
+        },
+        flare: {
+            levelMax: "1",
+            weight: "2",
+            incompatible: [],
+            items: ["bow", "crossbow"]
+        },
+        ghast: {
+            levelMax: "1",
+            weight: "5",
+            incompatible: ["withered_arrows", "flare", "bomber", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame"],
+            items: ["bow", "crossbow"]
+        },
+        hardened: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["chestplate", "elytra"]
+        },
+        haste: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        hover: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        ice_aspect: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        ice_shield: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["chestplate", "elytra"]
+        },
+        infernus: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["trident"]
+        },
+        lingering: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        lucky_miner: {
+            levelMax: "5",
+            weight: "10",
+            incompatible: [],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        night_vision: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: [],
+            items: ["helmet"]
+        },
+        nimble: {
+            levelMax: "1",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        paralyze: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        poisoned_arrows: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        rage: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        rebound: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["feather_falling"],
+            items: ["boots"]
+        },
+        regrowth: {
+            levelMax: "5",
+            weight: "1",
+            incompatible: [],
+            items: ["chestplate", "elytra"]
+        },
+        replanter: {
+            levelMax: "1",
+            weight: "2",
+            incompatible: [],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        restore: {
+            levelMax: "5",
+            weight: "2",
+            incompatible: [],
+            items: ["helmet", "chestplate", "leggings", "boots", "pickaxe", "shovel", "axe", "sword", "hoe", "brush", "fishing_rod",
+                "bow", "shears", "flint_and_steel", "carrot_on_a_stick", "warped_fungus_on_a_stick", "shield", "elytra", "trident",
+                "turtle_shell", "crossbow", "mace"
+            ]
+        },
+        river_master: {
+            levelMax: "5",
+            weight: "10",
+            incompatible: [],
+            items: ["fishing_rod"]
+        },
+        rocket: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        saturation: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["helmet"]
+        },
+        scavenger: {
+            levelMax: "4",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        seasoned_angler: {
+            levelMax: "4",
+            weight: "5",
+            incompatible: [],
+            items: ["fishing_rod"]
+        },
+        self_destruction: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["chestplate", "elytra"]
+        },
+        silk_chest: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: [],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        smelter: {
+            levelMax: "5",
+            weight: "5",
+            incompatible: ["silk_touch"],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        sniper: {
+            levelMax: "5",
+            weight: "5",
+            incompatible: [],
+            items: ["bow", "crossbow"]
+        },
+        sonic: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["boots"]
+        },
+        soulbound: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: ["vanishing_curse"],
+            items: ["helmet", "chestplate", "leggings", "boots", "pickaxe", "shovel", "axe", "sword", "hoe", "brush", "fishing_rod",
+                "bow", "shears", "flint_and_steel", "carrot_on_a_stick", "warped_fungus_on_a_stick", "shield", "elytra", "trident",
+                "turtle_shell", "crossbow", "mace"
+            ]
+        },
+        stopping_force: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["leggings"]
+        },
+        surprise: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        survivalist: {
+            levelMax: "1",
+            weight: "5",
+            incompatible: [],
+            items: ["fishing_rod"]
+        },
+        swiper: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        telekinesis: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: [],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        temper: {
+            levelMax: "5",
+            weight: "1",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        thrifty: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        thunder: {
+            levelMax: "5",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        treasure_hunter: {
+            levelMax: "4",
+            weight: "2",
+            incompatible: [],
+            items: ["helmet"]
+        },
+        tunnel: {
+            levelMax: "3",
+            weight: "1",
+            incompatible: ["blast_mining", "veinminer"],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        vampire: {
+            levelMax: "4",
+            weight: "2",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        vampiric_arrows: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        veinminer: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["blast_mining", "tunnel"],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        venom: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        village_defender: {
+            levelMax: "5",
+            weight: "10",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        wither: {
+            levelMax: "3",
+            weight: "5",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        withered_arrows: {
+            levelMax: "3",
+            weight: "2",
+            incompatible: ["bomber", "ghast", "ender_bow"],
+            items: ["bow", "crossbow"]
+        },
+        joyed: {
+            levelMax: "3",
+            weight: "1",
+            incompatible: [],
+            items: ["helmet"]
         },
     },
     items: [
