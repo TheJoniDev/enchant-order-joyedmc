@@ -267,6 +267,36 @@ var data = {
             incompatible: [],
             items: ["helmet"]
         },
+        auto_reel: {
+            levelMax: "1",
+            weight: "1",
+            incompatible: [],
+            items: ["fishing_rod"]
+        },
+        bane_of_netherspawn: {
+            levelMax: "5",
+            weight: "10",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        blast_mining: {
+            levelMax: "5",
+            weight: "2",
+            incompatible: ["veinminer", "tunnel"],
+            items: ["pickaxe", "shovel", "axe", "hoe", "shears"]
+        },
+        blindness: {
+            levelMax: "3",
+            weight: "10",
+            incompatible: [],
+            items: ["sword", "axe"]
+        },
+        bomber: {
+            levelMax: "3",
+            weight: "1",
+            incompatible: ["withered_arrows", "flare", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
+            items: ["bow", "crossbow"]
+        }
     },
     items: [
         'helmet',
