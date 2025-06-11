@@ -296,7 +296,7 @@ var data = {
             weight: "1",
             incompatible: ["withered_arrows", "flare", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
             items: ["bow", "crossbow"]
-        }
+        },
     },
     items: [
         'helmet',
