@@ -384,7 +384,7 @@ var data = {
         ender_bow: {
             levelMax: "1",
             weight: "1",
-            incompatible: ["withered_arrows", "flare", "bomber", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "electrified_arrows", "power", "flame", "ghast"],
+            incompatible: ["withered_arrows", "flare", "bomber", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
             items: ["bow", "crossbow"]
         },
         exhaust: {
