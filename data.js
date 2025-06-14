@@ -75,7 +75,7 @@ var data = {
         frost_walker: {
             levelMax: "2",
             weight: "2",
-            incompatible: ["depth_strider"],
+            incompatible: ["depth_strider", "flame_walker"],
             items: ["boots"]
         },
         impaling: {
