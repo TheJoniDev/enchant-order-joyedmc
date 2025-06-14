@@ -63,7 +63,8 @@ function greedyMerge(items) {
     while (items.length > 1) {
         const left = items.shift();
         const right = items.shift();
-        items.push(new MergeEnchants(left, right));
+        const merged = new MergeEnchants(left, right);
+        items.push(merged);
         items.sort((a, b) => a.l - b.l);
     }
     return items[0];
@@ -76,10 +77,11 @@ function getInstructions(c) {
             instructions = instructions.concat(getInstructions(c[key]));
         }
     }
-    if (Number.isInteger(c.R?.v)) {
-        const cost = c.R.v + 2 ** c.L.w - 1 + 2 ** c.R.w - 1;
+    if (c.L && c.R) {
+        const merge_cost = c.l ?? (c.R.l + 2 ** c.L.w - 1 + 2 ** c.R.w - 1);
         const work = Math.max(c.L.w, c.R.w) + 1;
-        instructions.push([c.L, c.R, cost, experience(cost), 2 ** work - 1]);
+        const xp = experience(merge_cost);
+        instructions.push([c.L, c.R, merge_cost, xp, 2 ** work - 1]);
     }
     return instructions;
 }
