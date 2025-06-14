@@ -294,7 +294,7 @@ var data = {
         bomber: {
             levelMax: "3",
             weight: "2",
-            incompatible: ["withered_arrows", "flare", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
+            incompatible: ["withered_arrows", "flare", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
             items: ["bow", "crossbow"]
         },
         bunny_hop: {
