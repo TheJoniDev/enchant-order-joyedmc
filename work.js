@@ -32,11 +32,21 @@ function process(item, enchants, mode = 'levels') {
         return obj;
     });
 
-    const base = (ITEM_NAME === 'book') ? enchant_objs.pop() : new item_obj('item');
-    const merged = new MergeEnchants(base, enchant_objs.pop());
-    merged.c.L = { I: base.i, l: 0, w: 0 };
+    if (enchant_objs.length === 0) {
+        postMessage({ msg: 'complete', item_obj: null, instructions: [], extra: [0, 0], enchants: enchants });
+        return;
+    }
 
-    let items = enchant_objs.concat(merged);
+    let base;
+    if (ITEM_NAME === 'book') {
+        base = enchant_objs.pop();
+    } else {
+        const base_enchant = enchant_objs.pop();
+        base = new item_obj('item', base_enchant.l, base_enchant.e);
+        base.c = base_enchant.c;
+    }
+
+    let items = [base].concat(enchant_objs);
     let result;
 
     try {
