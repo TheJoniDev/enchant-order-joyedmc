@@ -294,7 +294,7 @@ var data = {
         bomber: {
             levelMax: "3",
             weight: "2",
-            incompatible: ["withered_arrows", "flare", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
+            incompatible: ["withered_arrows", "flare", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame"],
             items: ["bow", "crossbow"]
         },
         bunny_hop: {
@@ -384,7 +384,7 @@ var data = {
         ender_bow: {
             levelMax: "1",
             weight: "1",
-            incompatible: ["withered_arrows", "flare", "bomber", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame", "ghast"],
+            incompatible: ["withered_arrows", "flare", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame"],
             items: ["bow", "crossbow"]
         },
         exhaust: {
@@ -426,7 +426,7 @@ var data = {
         ghast: {
             levelMax: "1",
             weight: "5",
-            incompatible: ["withered_arrows", "flare", "bomber", "confusing_arrows", "ender_bow", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame"],
+            incompatible: ["withered_arrows", "flare", "confusing_arrows", "explosive_arrows", "punch", "vampiric_arrows", "poisoned_arrows", "darkness_arrows", "hover", "dragonfire_arrows", "electrified_arrows", "power", "flame"],
             items: ["bow", "crossbow"]
         },
         hardened: {
