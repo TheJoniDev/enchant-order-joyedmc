@@ -420,7 +420,7 @@ var data = {
         flare: {
             levelMax: "1",
             weight: "2",
-            incompatible: [],
+            incompatible: ["bomber", "ender_bow", "ghast"],
             items: ["bow", "crossbow"]
         },
         ghast: {
