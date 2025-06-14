@@ -45,7 +45,7 @@ var data = {
         feather_falling: {
             levelMax: "4",
             weight: "1",
-            incompatible: [],
+            incompatible: ["rebound"],
             items: ["boots"]
         },
         fire_aspect: {
