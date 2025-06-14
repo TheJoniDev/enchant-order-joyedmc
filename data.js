@@ -186,7 +186,7 @@ var data = {
         silk_touch: {
             levelMax: "1",
             weight: "4",
-            incompatible: ["fortune"],
+            incompatible: ["fortune", "smelter"],
             items: ["pickaxe", "shovel", "axe", "hoe"]
         },
         smite: {
