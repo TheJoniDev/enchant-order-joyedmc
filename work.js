@@ -19,11 +19,11 @@ onmessage = event => {
     }
 
     if (event.data.msg === 'process') {
-        process(event.data.item, event.data.enchants, event.data.mode);
+        process(event.data.item, event.data.enchants);
     }
 };
 
-function process(itemName, enchants, mode = 'levels') {
+function process(itemName, enchants) {
     ITEM_NAME = itemName;
     Object.freeze(ITEM_NAME);
 
@@ -37,7 +37,6 @@ function process(itemName, enchants, mode = 'levels') {
 
     let baseItem;
     if (ITEM_NAME === 'book') {
-        // Use most expensive book as the base
         let mostExpensive = enchantObjs.reduce((max, cur, idx, arr) => cur.l > arr[max].l ? idx : max, 0);
         const baseEnchant = enchantObjs.splice(mostExpensive, 1)[0];
         const id = baseEnchant.e[0];
@@ -47,112 +46,57 @@ function process(itemName, enchants, mode = 'levels') {
         baseItem = new item_obj('item');
     }
 
-    // Merge the base item with the most expensive remaining enchant
-    let heap = new MinHeap(mode);
-    enchantObjs.forEach(obj => heap.push(obj));
-    if (heap.size() > 0) {
-        let mostExpensive = heap.pop();
-        const merged = new MergeEnchants(baseItem, mostExpensive);
-        merged.c.L = { I: baseItem.i, l: 0, w: 0 };
-        heap.push(merged);
-    } else {
-        heap.push(baseItem);
-    }
-
-    while (heap.size() > 1) {
-        const a = heap.pop();
-        const b = heap.pop();
-        try {
-            const merged = new MergeEnchants(a, b);
-            heap.push(merged);
-        } catch (e) {
-            if (!(e instanceof MergeLevelsTooExpensiveError)) throw e;
-            // fallback: skip merging
-            heap.push(a);
-            heap.push(b);
-            break;
-        }
-    }
-
-    const result = heap.pop();
-    const instructions = getInstructions(result.c);
-
+    const merged = beamSearchMerge([baseItem, ...enchantObjs], 64, 100000);
+    const instructions = getInstructions(merged.c);
     const totalLevels = instructions.reduce((sum, inst) => sum + inst[2], 0);
     const totalXp = experience(totalLevels);
 
     postMessage({
         msg: 'complete',
-        item_obj: result,
+        item_obj: merged,
         instructions: instructions,
         extra: [totalLevels, totalXp],
         enchants: enchants
     });
 }
 
-// Priority queue implementation
-class MinHeap {
-    constructor(mode = "levels") {
-        this.mode = mode;
-        this.heap = [];
-    }
+function beamSearchMerge(initialItems, beamWidth = 32, maxSteps = 100000) {
+    let beam = [initialItems];
+    let step = 0;
 
-    _compare(a, b) {
-        const key = this.mode === "prior_work" ? "w" : "l";
-        return a[key] - b[key];
-    }
+    while (beam.length > 0 && step < maxSteps) {
+        const nextBeam = [];
 
-    push(item) {
-        this.heap.push(item);
-        this._bubbleUp(this.heap.length - 1);
-    }
+        for (const items of beam) {
+            if (items.length === 1) return items[0];
 
-    pop() {
-        const top = this.heap[0];
-        const end = this.heap.pop();
-        if (this.heap.length > 0) {
-            this.heap[0] = end;
-            this._sinkDown(0);
-        }
-        return top;
-    }
-
-    size() {
-        return this.heap.length;
-    }
-
-    _bubbleUp(n) {
-        const item = this.heap[n];
-        while (n > 0) {
-            const parentN = Math.floor((n - 1) / 2);
-            const parent = this.heap[parentN];
-            if (this._compare(item, parent) >= 0) break;
-            this.heap[n] = parent;
-            n = parentN;
-        }
-        this.heap[n] = item;
-    }
-
-    _sinkDown(n) {
-        const length = this.heap.length;
-        const item = this.heap[n];
-        while (true) {
-            let left = 2 * n + 1;
-            let right = 2 * n + 2;
-            let smallest = n;
-
-            if (left < length && this._compare(this.heap[left], this.heap[smallest]) < 0) {
-                smallest = left;
+            for (let i = 0; i < items.length; i++) {
+                for (let j = i + 1; j < items.length; j++) {
+                    const a = items[i];
+                    const b = items[j];
+                    try {
+                        const merged = new MergeEnchants(a, b);
+                        const remaining = items.filter((_, idx) => idx !== i && idx !== j);
+                        nextBeam.push([...remaining, merged]);
+                    } catch (e) {
+                        if (!(e instanceof MergeLevelsTooExpensiveError)) throw e;
+                    }
+                }
             }
-            if (right < length && this._compare(this.heap[right], this.heap[smallest]) < 0) {
-                smallest = right;
-            }
-            if (smallest === n) break;
-
-            this.heap[n] = this.heap[smallest];
-            n = smallest;
         }
-        this.heap[n] = item;
+
+        // Sort by prior work penalty (lowest first)
+        nextBeam.sort((a, b) => {
+            const aWork = Math.max(...a.map(it => it.w));
+            const bWork = Math.max(...b.map(it => it.w));
+            return aWork - bWork;
+        });
+
+        beam = nextBeam.slice(0, beamWidth);
+        step++;
     }
+
+    return beam.length ? beam[0][0] : initialItems[0];
 }
 
 function getInstructions(comb) {
@@ -161,10 +105,9 @@ function getInstructions(comb) {
     for (const key in comb) {
         if (key === 'L' || key === 'R') {
             if (typeof comb[key].I === 'undefined') {
-                const childInstructions = getInstructions(comb[key]);
-                instructions.push(...childInstructions);
+                const child = getInstructions(comb[key]);
+                instructions.push(...child);
             }
-
             if (Number.isInteger(comb[key].I)) {
                 comb[key].I = Object.keys(ID_LIST).find(k => ID_LIST[k] === comb[key].I);
             } else if (!Object.keys(ID_LIST).includes(comb[key].I)) {
@@ -184,12 +127,12 @@ function getInstructions(comb) {
 
 class item_obj {
     constructor(name, value = 0, ids = []) {
-        this.i = name; // item namespace
-        this.e = ids;  // enchant IDs
-        this.c = {};   // instructions
-        this.w = 0;    // prior work
-        this.l = value; // merge "cost"
-        this.x = 0;    // total XP
+        this.i = name;
+        this.e = ids;
+        this.c = {};
+        this.w = 0;
+        this.l = value;
+        this.x = 0;
     }
 }
 
@@ -199,10 +142,8 @@ class MergeEnchants extends item_obj {
         if (mergeCost > MAXIMUM_MERGE_LEVELS) {
             throw new MergeLevelsTooExpensiveError();
         }
-
         const newValue = left.l + right.l;
         super(left.i, newValue);
-
         this.e = left.e.concat(right.e);
         this.w = Math.max(left.w, right.w) + 1;
         this.x = left.x + right.x + experience(mergeCost);
