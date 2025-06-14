@@ -63,7 +63,7 @@ var data = {
         flame: {
             levelMax: "1",
             weight: "2",
-            incompatible: [],
+            incompatible: ["bomber", "ender_bow", "ghast"],
             items: ["bow"]
         },
         fortune: {
@@ -144,7 +144,7 @@ var data = {
         power: {
             levelMax: "5",
             weight: "1",
-            incompatible: [],
+            incompatible: ["bomber", "ender_bow", "ghast"],
             items: ["bow"]
         },
         projectile_protection: {
@@ -156,7 +156,7 @@ var data = {
         punch: {
             levelMax: "2",
             weight: "2",
-            incompatible: [],
+            incompatible: ["bomber", "ender_bow", "ghast"],
             items: ["bow"]
         },
         quick_charge: {
