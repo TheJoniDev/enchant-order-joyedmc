@@ -11,7 +11,6 @@ onmessage = event => {
         let id = 0;
         for (let enchant in enchants) {
             const enchant_data = enchants[enchant];
-
             const weight = enchant_data['weight'];
 
             ID_LIST[enchant] = id;
@@ -21,6 +20,7 @@ onmessage = event => {
         Object.freeze(ENCHANTMENT2WEIGHT);
         Object.freeze(ID_LIST);
     }
+
     if (event.data.msg === 'process') {
         process(event.data.item, event.data.enchants, event.data.mode);
     }
@@ -48,6 +48,7 @@ function process(item, enchants, mode = 'levels') {
         item = new item_obj(id, enchant_objs[mostExpensive].l);
         item.e.push(id);
         enchant_objs.splice(mostExpensive, 1);
+
         mostExpensive = enchant_objs.reduce((maxIndex, item, currentIndex, array) => {
             return item.l > array[maxIndex].l ? currentIndex : maxIndex;
         }, 0);
@@ -59,17 +60,13 @@ function process(item, enchants, mode = 'levels') {
     merged_item.c.L = { I: item.i, l: 0, w: 0 };
     enchant_objs.splice(mostExpensive, 1);
 
-    enchant_objs.push(merged_item);
-    let final_item = greedyMerge(enchant_objs);
+    let all_objs = enchant_objs.concat(merged_item);
 
-    const cheapest_item = final_item;
+    // Replaced brute-force logic with Huffman strategy
+    const cheapest_item = huffmanMerge(all_objs);
 
     let instructions = getInstructions(cheapest_item.c);
-
-    let max_levels = 0;
-    instructions.forEach(key => {
-        max_levels += key[2];
-    });
+    let max_levels = instructions.reduce((sum, step) => sum + step[2], 0);
     let max_xp = experience(max_levels);
 
     postMessage({
@@ -83,40 +80,34 @@ function process(item, enchants, mode = 'levels') {
     results = {};
 }
 
-function greedyMerge(enchant_objs) {
-    const MinHeap = class {
-        constructor() {
-            this.data = [];
-        }
-        push(item) {
-            this.data.push(item);
-            this.data.sort((a, b) => a.l - b.l);
-        }
-        pop() {
-            return this.data.shift();
-        }
-        size() {
-            return this.data.length;
-        }
-    };
+function huffmanMerge(items) {
+    let queue = [...items];
+    queue.sort((a, b) => a.l - b.l);
 
-    const heap = new MinHeap();
-    enchant_objs.forEach(obj => heap.push(obj));
+    while (queue.length > 1) {
+        let left = queue.shift();
+        let right = queue.shift();
 
-    while (heap.size() > 1) {
-        const left = heap.pop();
-        const right = heap.pop();
-
+        let merged;
         try {
-            const merged = new MergeEnchants(left, right);
-            heap.push(merged);
-        } catch (e) {
-            if (!(e instanceof MergeLevelsTooExpensiveError)) throw e;
-            heap.push(right);
+            merged = new MergeEnchants(left, right);
+        } catch (error) {
+            if (error instanceof MergeLevelsTooExpensiveError) {
+                try {
+                    merged = new MergeEnchants(right, left);
+                } catch {
+                    throw new Error("Unable to merge due to XP level cap.");
+                }
+            } else {
+                throw error;
+            }
         }
+
+        queue.push(merged);
+        queue.sort((a, b) => a.l - b.l);
     }
 
-    return heap.pop();
+    return queue[0];
 }
 
 function getInstructions(comb) {
@@ -124,7 +115,7 @@ function getInstructions(comb) {
     let child_instructions;
     for (const key in comb) {
         if (key === 'L' || key === 'R') {
-            if (typeof (comb[key].I) === 'undefined') {
+            if (typeof comb[key].I === 'undefined') {
                 child_instructions = getInstructions(comb[key]);
                 child_instructions.forEach(single_instruction => {
                     instructions.push(single_instruction);
@@ -134,7 +125,7 @@ function getInstructions(comb) {
             if (Number.isInteger(comb[key].I)) {
                 id = comb[key].I;
                 comb[key].I = Object.keys(ID_LIST).find(key => ID_LIST[key] === id);
-            } else if (typeof (comb[key].I) === 'string' && !Object.keys(ID_LIST).includes(comb[key].I)) {
+            } else if (typeof comb[key].I === 'string' && !Object.keys(ID_LIST).includes(comb[key].I)) {
                 comb[key].I = ITEM_NAME;
             }
         }
@@ -153,12 +144,12 @@ function getInstructions(comb) {
 
 class item_obj {
     constructor(name, value = 0, id = []) {
-        this.i = name;
-        this.e = id;
-        this.c = {};
-        this.w = 0;
-        this.l = value;
-        this.x = 0;
+        this.i = name;     // item namespace: 'book' or 'item'
+        this.e = id;       // enchant ids
+        this.c = {};       // instructions tree
+        this.w = 0;        // work
+        this.l = value;    // value (used in Huffman merge)
+        this.x = 0;        // total XP
     }
 }
 
