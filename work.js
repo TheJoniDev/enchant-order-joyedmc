@@ -7,12 +7,10 @@ let results = {};
 onmessage = event => {
     if (event.data.msg === 'set_data') {
         const { enchants } = event.data.data;
-
         let id = 0;
         for (let enchant in enchants) {
             const enchant_data = enchants[enchant];
             const weight = enchant_data['weight'];
-
             ID_LIST[enchant] = id;
             ENCHANTMENT2WEIGHT[id] = weight;
             id++;
@@ -20,7 +18,6 @@ onmessage = event => {
         Object.freeze(ENCHANTMENT2WEIGHT);
         Object.freeze(ID_LIST);
     }
-
     if (event.data.msg === 'process') {
         process(event.data.item, event.data.enchants, event.data.mode);
     }
@@ -29,7 +26,6 @@ onmessage = event => {
 function process(item, enchants, mode = 'levels') {
     ITEM_NAME = item;
     Object.freeze(ITEM_NAME);
-
     let enchant_objs = [];
     enchants.forEach(enchant => {
         let id = ID_LIST[enchant[0]];
@@ -38,43 +34,19 @@ function process(item, enchants, mode = 'levels') {
         enchant_objs.push(e_obj);
     });
 
-    // Find most expensive
-    let mostExpensive = enchant_objs.reduce((maxIndex, item, currentIndex, array) => {
-        return item.l > array[maxIndex].l ? currentIndex : maxIndex;
-    }, 0);
+    let baseItem = new item_obj(ITEM_NAME);
+    let allItems = [...enchant_objs, baseItem];
 
-    let id;
-    if (ITEM_NAME === 'book') {
-        id = enchant_objs[mostExpensive].e[0];
-        item = new item_obj(id, enchant_objs[mostExpensive].l);
-        item.e.push(id);
-        enchant_objs.splice(mostExpensive, 1);
-        mostExpensive = enchant_objs.reduce((maxIndex, item, currentIndex, array) => {
-            return item.l > array[maxIndex].l ? currentIndex : maxIndex;
-        }, 0);
-    } else {
-        item = new item_obj('item');
-    }
+    let merged_item = greedyOptimalMerge(allItems);
+    merged_item.i = ITEM_NAME;
 
-    let merged_item = new MergeEnchants(item, enchant_objs[mostExpensive]);
-    merged_item.c.L = { I: item.i, l: 0, w: 0 };
-    enchant_objs.splice(mostExpensive, 1);
-
-    let all_objs = enchant_objs.concat(merged_item);
-    let cheapest_item = greedyOptimalMerge(all_objs);
-
-    let instructions = getInstructions(cheapest_item.c);
-
-    let max_levels = 0;
-    instructions.forEach(key => {
-        max_levels += key[2];
-    });
-
+    let instructions = getInstructions(merged_item.c);
+    let max_levels = instructions.reduce((sum, step) => sum + step[2], 0);
     let max_xp = experience(max_levels);
 
     postMessage({
         msg: 'complete',
-        item_obj: cheapest_item,
+        item_obj: merged_item,
         instructions: instructions,
         extra: [max_levels, max_xp],
         enchants: enchants
@@ -84,44 +56,53 @@ function process(item, enchants, mode = 'levels') {
 }
 
 function greedyOptimalMerge(items) {
-    const heap = [...items];
+    let working = [...items];
+    while (working.length > 1) {
+        let minCost = Infinity;
+        let bestPair = null;
+        let bestResult = null;
 
-    heap.sort((a, b) => {
-        if (a.x !== b.x) return a.x - b.x;
-        if (a.l !== b.l) return a.l - b.l;
-        return a.w - b.w;
-    });
-
-    while (heap.length > 1) {
-        const left = heap.shift();
-        const right = heap.shift();
-        let merged;
-        try {
-            merged = new MergeEnchants(left, right);
-        } catch (e) {
-            if (e instanceof MergeLevelsTooExpensiveError) continue;
-            throw e;
+        for (let i = 0; i < working.length; i++) {
+            for (let j = i + 1; j < working.length; j++) {
+                try {
+                    let merged = new MergeEnchants(working[i], working[j]);
+                    if (merged.x < minCost) {
+                        minCost = merged.x;
+                        bestPair = [i, j];
+                        bestResult = merged;
+                    }
+                } catch (_) {}
+                try {
+                    let merged = new MergeEnchants(working[j], working[i]);
+                    if (merged.x < minCost) {
+                        minCost = merged.x;
+                        bestPair = [j, i];
+                        bestResult = merged;
+                    }
+                } catch (_) {}
+            }
         }
-        heap.push(merged);
-        heap.sort((a, b) => {
-            if (a.x !== b.x) return a.x - b.x;
-            if (a.l !== b.l) return a.l - b.l;
-            return a.w - b.w;
-        });
+
+        if (!bestPair) break;
+
+        working.splice(bestPair[1], 1);
+        working.splice(bestPair[0], 1);
+        working.push(bestResult);
     }
 
-    return heap[0];
+    return working[0];
 }
 
 function getInstructions(comb) {
     let instructions = [];
     let child_instructions;
-
     for (const key in comb) {
         if (key === 'L' || key === 'R') {
             if (typeof (comb[key].I) === 'undefined') {
                 child_instructions = getInstructions(comb[key]);
-                child_instructions.forEach(inst => instructions.push(inst));
+                child_instructions.forEach(single_instruction => {
+                    instructions.push(single_instruction);
+                });
             }
             let id;
             if (Number.isInteger(comb[key].I)) {
@@ -132,29 +113,26 @@ function getInstructions(comb) {
             }
         }
     }
-
     let merge_cost;
     if (Number.isInteger(comb.R.v)) {
         merge_cost = comb.R.v + 2 ** comb.L.w - 1 + 2 ** comb.R.w - 1;
     } else {
         merge_cost = comb.R.l + 2 ** comb.L.w - 1 + 2 ** comb.R.w - 1;
     }
-
     let work = Math.max(comb.L.w, comb.R.w) + 1;
     const single_instruction = [comb.L, comb.R, merge_cost, experience(merge_cost), 2 ** work - 1];
     instructions.push(single_instruction);
-
     return instructions;
 }
 
 class item_obj {
     constructor(name, value = 0, id = []) {
-        this.i = name; // item namespace: 'book' or 'item'
-        this.e = id;   // enchantment ids
-        this.c = {};   // stores instructions
-        this.w = 0;    // work
-        this.l = value; // total value
-        this.x = 0;    // total XP cost
+        this.i = name;
+        this.e = id;
+        this.c = {};
+        this.w = 0;
+        this.l = value;
+        this.x = 0;
     }
 }
 
@@ -164,10 +142,9 @@ class MergeEnchants extends item_obj {
         if (merge_cost > MAXIMUM_MERGE_LEVELS) {
             throw new MergeLevelsTooExpensiveError();
         }
-
         let new_value = left.l + right.l;
         super(left.i, new_value);
-        this.e = left.e.concat(right.e);
+        this.e = [...new Set([...left.e, ...right.e])];
         this.w = Math.max(left.w, right.w) + 1;
         this.x = left.x + right.x + experience(merge_cost);
         this.c = { L: left.c, R: right.c, l: merge_cost, w: this.w, v: this.l };
