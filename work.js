@@ -4,7 +4,6 @@ const MAXIMUM_MERGE_LEVELS = 39;
 let ITEM_NAME;
 let results = {};
 
-
 onmessage = event => {
     if (event.data.msg === 'set_data') {
         const { enchants } = event.data.data;
@@ -27,133 +26,94 @@ onmessage = event => {
     }
 };
 
+// Huffman merge function - merges enchantments greedily by lowest cost
+function huffmanMerge(enchant_objs) {
+    let heap = [...enchant_objs];
+    heap.sort((a, b) => a.l - b.l);
 
-// --- MinHeap for merging ---
-class MinHeap {
-    constructor() {
-        this.heap = [];
-    }
-    push(item) {
-        this.heap.push(item);
-        this.bubbleUp(this.heap.length - 1);
-    }
-    pop() {
-        if (this.heap.length === 0) return null;
-        const top = this.heap[0];
-        const end = this.heap.pop();
-        if (this.heap.length > 0) {
-            this.heap[0] = end;
-            this.bubbleDown(0);
-        }
-        return top;
-    }
-    size() {
-        return this.heap.length;
-    }
-    bubbleUp(index) {
-        const element = this.heap[index];
-        while (index > 0) {
-            const parentIndex = Math.floor((index - 1) / 2);
-            const parent = this.heap[parentIndex];
-            if (element.w >= parent.w) break;
-            this.heap[parentIndex] = element;
-            this.heap[index] = parent;
-            index = parentIndex;
-        }
-    }
-    bubbleDown(index) {
-        const length = this.heap.length;
-        const element = this.heap[index];
-        while (true) {
-            let leftIdx = 2 * index + 1;
-            let rightIdx = 2 * index + 2;
-            let swap = null;
+    while (heap.length > 1) {
+        const left = heap.shift();
+        const right = heap.shift();
 
-            if (leftIdx < length && this.heap[leftIdx].w < element.w) {
-                swap = leftIdx;
+        let merged;
+        try {
+            merged = new MergeEnchants(left, right);
+        } catch (err) {
+            if (err instanceof MergeLevelsTooExpensiveError) {
+                // Can't merge due to cost limits, put them back and stop merging
+                heap.unshift(right);
+                heap.unshift(left);
+                break;
+            } else {
+                throw err;
             }
-            if (rightIdx < length) {
-                if ((swap === null && this.heap[rightIdx].w < element.w) ||
-                    (swap !== null && this.heap[rightIdx].w < this.heap[leftIdx].w)) {
-                    swap = rightIdx;
-                }
-            }
-            if (swap === null) break;
-            this.heap[index] = this.heap[swap];
-            this.heap[swap] = element;
-            index = swap;
         }
+
+        heap.push(merged);
+        heap.sort((a, b) => a.l - b.l);
     }
+
+    if (heap.length === 1) return heap[0];
+
+    return heap.reduce((min, item) => item.l < min.l ? item : min, heap[0]);
 }
-// --- end MinHeap ---
-
 
 function process(item, enchants, mode = 'levels') {
-    ITEM_NAME = item;
+    ITEM_NAME = item
     Object.freeze(ITEM_NAME);
 
-    // Create item objects for each enchantment
-    let enchant_objs = enchants.map(enchant => {
-        let id = ID_LIST[enchant[0]];
-        let value = enchant[1] * ENCHANTMENT2WEIGHT[id];
-        let obj = new item_obj('book', value, [id]);
-        obj.c = { I: id, l: obj.l, w: obj.w };
-        return obj;
+    let enchant_objs = []
+    enchants.forEach(enchant => { // Creates objects of enchants
+        let id = ID_LIST[enchant[0]]
+        let e_obj = new item_obj('book', enchant[1] * ENCHANTMENT2WEIGHT[id], [id])
+        e_obj.c = { I: id, l: e_obj.l, w: e_obj.w }
+        enchant_objs.push(e_obj)
     });
 
-    // Determine base item if book
-    let baseItem;
+    let item_obj_to_merge;
+
     if (ITEM_NAME === 'book') {
-        enchant_objs.sort((a, b) => b.l - a.l);
-        let base = enchant_objs.shift();
-        baseItem = new item_obj(base.e[0], base.l, [...base.e]);
-        baseItem.e.push(base.e[0]);
+        // Find most expensive enchant to use as base book
+        let mostExpensive = enchant_objs.reduce((maxIndex, item, currentIndex, array) => {
+            return item.l > array[maxIndex].l ? currentIndex : maxIndex;
+        }, 0);
+
+        let id = enchant_objs[mostExpensive].e[0];
+        let base_book = new item_obj(id, enchant_objs[mostExpensive].l);
+        base_book.e.push(id);
+        enchant_objs.splice(mostExpensive, 1);
+
+        // Use Huffman merge on remaining enchants
+        const merged = huffmanMerge(enchant_objs);
+
+        // Merge base book with merged enchants
+        item_obj_to_merge = new MergeEnchants(base_book, merged);
+        item_obj_to_merge.c.L = { I: base_book.i, l: 0, w: 0 };
     } else {
-        baseItem = new item_obj('item');
+        // Just Huffman merge all enchants into one item
+        item_obj_to_merge = huffmanMerge(enchant_objs);
     }
 
-    // Use MinHeap to merge all enchantments greedily
-    let heap = new MinHeap();
-    heap.push(baseItem);
-    enchant_objs.forEach(obj => heap.push(obj));
+    // Get instructions from merged object
+    let instructions = getInstructions(item_obj_to_merge.c);
 
-    while (heap.size() > 1) {
-        let left = heap.pop();
-        let right = heap.pop();
-
-        try {
-            let merged = new MergeEnchants(left, right);
-            heap.push(merged);
-        } catch (e) {
-            if (e instanceof MergeLevelsTooExpensiveError) {
-                // Optional: handle expensive merges differently here
-                throw e;
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    let cheapest_item = heap.pop();
-
-    let instructions = getInstructions(cheapest_item.c);
-
-    let max_levels = instructions.reduce((sum, inst) => sum + inst[2], 0);
-    let max_xp = experience(max_levels);
+    let max_levels = 0;
+    instructions.forEach(key => {
+        max_levels += key[2]
+    });
+    let max_xp = experience(max_levels)
 
     postMessage({
         msg: 'complete',
-        item_obj: cheapest_item,
-        instructions,
+        item_obj: item_obj_to_merge,
+        instructions: instructions,
         extra: [max_levels, max_xp],
-        enchants,
+        enchants: enchants
     });
 
-    results = {};
+    results = {}
 }
 
-
-// --- Your original getInstructions function ---
 function getInstructions(comb) {
     let instructions = [];
     let child_instructions;
@@ -186,9 +146,6 @@ function getInstructions(comb) {
     return instructions;
 }
 
-
-// --- Classes and supporting functions, unchanged ---
-
 class item_obj {
     constructor(name, value = 0, id = []) {
         this.i = name // item namespace: 'book' or 'item'
@@ -212,7 +169,7 @@ class MergeEnchants extends item_obj {
         this.e = left.e.concat(right.e) // list of enchants
         this.w = Math.max(left.w, right.w) + 1 // new work
         this.x = left.x + right.x + experience(merge_cost) // total xp
-        this.c = {L: left.c, R: right.c, l: merge_cost, w: this.w, v: this.l} // instructions
+        this.c = { L: left.c, R: right.c, l: merge_cost, w: this.w, v: this.l } // instructions
     }
 }
 
